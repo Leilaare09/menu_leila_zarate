@@ -1,0 +1,231 @@
+/*Hacer un programa que mediante un menú de opciones realice las siguientes acciones:
+a. Ingresar los siguientes datos de un stock de materiales compuesto de 100 artículos: Código (Según el índice), Descripción (30 caracteres), Cantidad (Pueden ser negativa) y Precio Unitario.
+b. Calcular el monto de cada artículo y mostrar el capital actual del Stock.
+c. Buscar los datos de un artículo determinado por su nombre (Descripción), y mostrar a todos los datos incluyendo el monto.
+d. Hacer los listados de los artículos existentes y faltantes, por separado, mostrar a todos los datos.
+x. Salir del programa.*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 10
+
+struct stock{
+	int codigo;
+	char descripcion[30];
+	int cantidad;
+	float precio;
+	float capital;
+	int lista;
+};
+
+int main(){
+	//Variables
+	int op = 0; //Permite entrar a las opciones.
+	int salir = 0; //Permite salir del programa.
+	int proIngresados = 0; //Contador que controla la cantidad de productos.
+	int cant = 0; //Cantidad de productos para agregar mas.
+	int i = 0;
+	int venta = 0;
+	int listado = 0;
+	//Estrutura de los productos
+	struct stock producto[MAX];
+	
+	//Programa
+	do{
+		printf("\tMenu Principal\n");
+		printf("1  Ingresar Articulos.\n2  Calcular Venta del Articulo.\n3  Buscar Articulo.\n4  Lista de Articulos.\n5  Salir.\n>");
+		scanf("%d", &op);
+		fflush(stdin);
+		switch(op){
+			
+			case 1://Ingreso de datos
+				system("cls");
+				printf("\tIngresar Articulos\n");
+				if (proIngresados >= MAX){ //Validacion, para que no se puedan agregar mas de 100 productos.
+					printf("\nLimite de Productos Superados, No se pueden agregar mas.\n");
+					system("pause");
+					system("cls");
+					break;
+					
+				}
+				printf("Ingrese la Cantidad de Articulos Nuevos que desea agregar (%d restantes).\n>",MAX-proIngresados);
+				scanf("%d", &cant);
+				fflush(stdin);
+				while(cant >= MAX+1-proIngresados){ //Validacion, para que no puedan ingresar productos que superen el limite.
+					printf("Ingresar una cantidad que no supere el limite (%d).\n>", MAX);
+					scanf("%d", &cant);
+					fflush(stdin);
+				}
+				
+				for(i=proIngresados; i<proIngresados+cant; i++){
+					
+					printf("\nIngrese la Descripcion (nombre) del producto %d.\n>", i+1);
+					scanf("%s", producto[i].descripcion);
+					fflush(stdin);
+					while(strlen(producto[i].descripcion) > 30){ //Validacion de la descripcion.
+						printf("Ingrese una descripcion mas corta. (30 caracteres)\n>");
+						scanf("%s", producto[i].descripcion);
+						fflush(stdin);
+					}
+					
+					printf("Ingrese el codigo del Producto (6 Digitos).\n>");
+					scanf("%d", &producto[i].codigo);
+					fflush(stdin);
+					while(producto[i].codigo < 100000 || producto[i].codigo > 999999){ //Validacion del codigo.
+						printf("El codigo debe ser de 6 digitos.\n>");
+						scanf("%d", &producto[i].codigo);
+						fflush(stdin);
+					}
+					
+					printf("Ingrese la cantidad del Producto.\n>");
+					scanf("%d", &producto[i].cantidad);
+					fflush(stdin);
+					
+					printf("Ingrese el precio unitario del Producto.\n>$");
+					scanf("%f", &producto[i].precio);
+					fflush(stdin);
+					while(producto[i].precio < 1){ //Validacion del precio del producto.
+						printf("El precio No puede ser 0 o Negativo!\n>");
+						scanf("%f", &producto[i].precio);
+						fflush(stdin);
+					}
+				}
+				proIngresados = proIngresados + cant; //Contador, controla la cantidad de los productos ingresados.
+				printf("\nLos Datos fueron ingresados exitosamente.\n");
+				system("pause");
+				system("cls");
+				break;
+				
+			
+			case 2://Calculo de articulos.
+				system("cls");
+					printf("\tCalcular Ventas\n");
+					if(proIngresados == 0){ //Validacion, no permite acceder sin los articulos cargados.
+						printf("\nNo hay productos ingresados.\n");
+						system("pause");
+						system("cls");
+						break;
+					}
+					
+					printf("Ingrese el valor numerico del producto que quiere calcular.\n");
+					for (i=0; i<proIngresados; i++){
+						printf("%d - %s\n",i+1, producto[i].descripcion);
+					}
+					printf(">");
+					scanf("%d", &i);
+					fflush(stdin);
+					while(i > proIngresados){ //Validacion, para que no se pueda calcular los datos de un producto inexistente.
+						printf("Ingrese un producto que se muestre en la lista.\n>");
+						scanf("%d", &i);
+						fflush(stdin);
+					}
+					i--;
+					//Calculos
+					printf("Ingrese la cantidad de stock que vendio \"%s\"\n>", producto[i].descripcion);
+					scanf("%d", &venta);
+					fflush(stdin);
+					
+					producto[i].capital = producto[i].capital + producto[i].precio * venta; //Acumula las ganacias de las ventas.
+					producto[i].cantidad = producto[i].cantidad - venta; //Resta el stock vendido.
+					
+					printf("El capital actual del producto \"%s\" es: $%.2f\n", producto[i].descripcion, producto[i].capital);
+					system("pause");
+					system("cls");
+				break;
+				
+			
+			case 3://Busqueda de articulo por separado.
+				system("cls");
+				printf("\tBuscar Articulo\n");
+				if(proIngresados == 0){ //Validacion, no permite acceder sin articulos cargados.
+					printf("\nNo hay productos ingresados!\n");
+					system("pause");
+					system("cls");
+					break;
+				}
+				printf("Ingrese el valor numerico del producto que desea comprobar.\n");
+				for (i=0; i<proIngresados; i++){
+					printf("%d - %s\n",i+1, producto[i].descripcion);
+				}
+				printf(">");
+				scanf("%d", &i);
+				fflush(stdin);
+				while(i > proIngresados){ //Validacion, para que no se pueda ingresar a un producto inexistente.
+					printf("Ingrese un producto que se muestre en la lista.\n>");
+					scanf("%d", &i);
+					fflush(stdin);
+				}
+				i--;
+				system("cls");
+				printf("\t-%s-\n", producto[i].descripcion);
+				printf("Codigo: %d\n", producto[i].codigo);
+				printf("Stock: %d\n", producto[i].cantidad);
+				printf("Precio unitario: $%.2f\n", producto[i].precio);
+				printf("Ganancia: $%.2f\n", producto[i].capital);
+					
+				system("pause");
+				system("cls");
+				break;
+			
+			
+			case 4://Mostrar lista de articulos
+				system("cls");
+				printf("\tListas de Articulos\n");
+				if(proIngresados == 0){ //Validacion, no permite acceder sin articulos cargados.
+					printf("\nNo hay productos ingresados!\n");
+					system("pause");
+					system("cls");
+					break;
+				}
+				//Ordenamiento de las 2 listas
+				printf("Ingrese la lista que desea revisar.\n1 - Stock existente.\n2 - Stock faltantes.\n>");
+				scanf("%d", &listado);
+				fflush(stdin);
+				while(listado > 2 || listado < 1){
+					printf("Ingrese el valor de una lista valida!\n>");
+					scanf("%d", &listado);
+					fflush(stdin);
+				}
+				
+				if (listado == 1){
+					for (i=0; i<proIngresados; i++){
+						if (producto[i].cantidad > 0){
+							printf("\nProducto nro %d-\n", i+1);
+							printf("Descripcion: %s\n", producto[i].descripcion);
+							printf("Codigo: %d\n", producto[i].codigo);
+							printf("Stock: %d\n", producto[i].cantidad);
+							printf("Precio unitario: $%.2f\n", producto[i].precio);
+							printf("Ganancia: $%.2f\n", producto[i].capital);
+						}
+					}
+				}
+				
+				if (listado == 2){
+					for (i=0; i<proIngresados; i++){
+						if (producto[i].cantidad < 0){
+							printf("\nProducto nro %d-\n", i+1);
+							printf("Descripcion: %s\n", producto[i].descripcion);
+							printf("Codigo: %d\n", producto[i].codigo);
+							printf("Stock: %d\n", producto[i].cantidad);
+							printf("Precio unitario: $%.2f\n", producto[i].precio);
+							printf("Ganancia: $%.2f\n", producto[i].capital);
+						}
+					}
+				}
+				
+				system("pause");
+				system("cls");
+				break;
+			
+			
+			default://Salir
+				salir = 1;
+				break;
+		}
+		
+	} while (salir == 0);
+	printf("\nFin del Programa.");
+	return 0;
+}
